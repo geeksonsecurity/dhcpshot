@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetProjects.DhcpServer" Version="1.0.15" />
+    <PackageReference Include="DotNetProjects.DhcpServer" Version="2.0.19" />
     <PackageReference Include="System.CommandLine.Experimental" Version="0.3.0-alpha.19573.2" />
   </ItemGroup>
 

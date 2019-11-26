@@ -81,10 +81,15 @@ namespace dhcpshot
                 var replyOptions = new DHCPReplyOptions();
                 replyOptions.SubnetMask = IPAddress.Parse("255.255.255.0");
 
-                if (type == DHCPMsgType.DHCPDISCOVER)
+                if (type == DHCPMsgType.DHCPDISCOVER){
+                    Console.WriteLine($"Received discovery, sending offer!");
                     dhcpRequest.SendDHCPReply(DHCPMsgType.DHCPOFFER, targetIp, replyOptions);
-                if (type == DHCPMsgType.DHCPREQUEST)
+                }else if (type == DHCPMsgType.DHCPREQUEST){
+                    Console.WriteLine($"Received request, sending ack!");
                     dhcpRequest.SendDHCPReply(DHCPMsgType.DHCPACK, targetIp, replyOptions);
+                } else {
+                    Console.WriteLine($"Received unknown DHCP type {type}");
+                }
             }
             catch (Exception ex)
             {
