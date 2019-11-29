@@ -5,12 +5,22 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using DotNetProjects.DhcpServer;
+using System.Threading.Tasks;
 
 namespace dhcpshot
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task LoadingIndicator()
+        {
+            char[] cursor = { '/', '-', '\\', '|' }; var idx = 0;
+            while (true)
+            {
+                Console.Write("{0,1}\b\b\b", cursor[(idx +=1) % cursor.Length]);
+                await Task.Delay(100);
+            }
+        }
+        static async Task Main(string[] args)
         {
             var rootCommand = new RootCommand
             {
@@ -30,10 +40,10 @@ namespace dhcpshot
             };
             rootCommand.Description = "DHCPshot - Assign IP address to first client asking on the specified interface";
             rootCommand.Handler = CommandHandler.Create<string, string>(StartServer);
-            rootCommand.InvokeAsync(args).Wait();
+            await rootCommand.InvokeAsync(args);
         }
 
-        public static void StartServer(string interfaceIp, string targetIp)
+        public static async void StartServer(string interfaceIp, string targetIp)
         {
             Console.WriteLine($"Looking for interface for IP {interfaceIp}");
             var intf = NetworkInterface.GetAllNetworkInterfaces()
@@ -71,6 +81,7 @@ namespace dhcpshot
             server.SendDhcpAnswerNetworkInterface = intf;
             server.Start();
             Console.WriteLine("Running DHCP server... Press CTRL-C to exit");
+            await LoadingIndicator();
         }
 
         static void Request(DHCPRequest dhcpRequest, IPAddress targetIp)
@@ -81,13 +92,18 @@ namespace dhcpshot
                 var replyOptions = new DHCPReplyOptions();
                 replyOptions.SubnetMask = IPAddress.Parse("255.255.255.0");
 
-                if (type == DHCPMsgType.DHCPDISCOVER){
+                if (type == DHCPMsgType.DHCPDISCOVER)
+                {
                     Console.WriteLine($"Received discovery, sending offer!");
                     dhcpRequest.SendDHCPReply(DHCPMsgType.DHCPOFFER, targetIp, replyOptions);
-                }else if (type == DHCPMsgType.DHCPREQUEST){
+                }
+                else if (type == DHCPMsgType.DHCPREQUEST)
+                {
                     Console.WriteLine($"Received request, sending ack!");
                     dhcpRequest.SendDHCPReply(DHCPMsgType.DHCPACK, targetIp, replyOptions);
-                } else {
+                }
+                else
+                {
                     Console.WriteLine($"Received unknown DHCP type {type}");
                 }
             }
