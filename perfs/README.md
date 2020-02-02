@@ -40,3 +40,12 @@ real    0m38.211s
 user    0m31.473s
 sys     0m0.958s
 ```
+
+```sh
+$ python3
+Python 3.7.5 (default, Nov 26 2019, 23:16:23) 
+$ time python3 perf.py 
+real    3m34.382s
+user    3m21.708s
+sys     0m1.565s
+```

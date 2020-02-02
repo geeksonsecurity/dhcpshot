@@ -75,7 +75,7 @@ namespace dhcpshot
             Console.WriteLine($"Client will receive IP {targetIp}");
             server.OnDataReceived += delegate (DHCPRequest dhcpRequest)
             {
-                Request(dhcpRequest, IPAddress.Parse(targetIp));
+                Request(dhcpRequest, IPAddress.Parse(targetIp), interfaceIp);
             };
             server.BroadcastAddress = IPAddress.Broadcast;
             server.SendDhcpAnswerNetworkInterface = intf;
@@ -84,13 +84,14 @@ namespace dhcpshot
             await LoadingIndicator();
         }
 
-        static void Request(DHCPRequest dhcpRequest, IPAddress targetIp)
+        static void Request(DHCPRequest dhcpRequest, IPAddress targetIp, string interfaceIp)
         {
             try
             {
                 var type = dhcpRequest.GetMsgType();
                 var replyOptions = new DHCPReplyOptions();
                 replyOptions.SubnetMask = IPAddress.Parse("255.255.255.0");
+                replyOptions.ServerIdentifier = IPAddress.Parse(interfaceIp);
 
                 if (type == DHCPMsgType.DHCPDISCOVER)
                 {
